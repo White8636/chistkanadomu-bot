@@ -27,11 +27,8 @@ logging.basicConfig(
 )
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(
-        "👋 Привет! Я бот для заказа химчистки.
+    await update.message.reply_text("👋 Привет! Я бот для заказа химчистки.\n\nНажми /order, чтобы оставить заявку.")
 
-Нажми /order, чтобы оставить заявку."
-    )
 
 async def order(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Введите имя и номер телефона (в одной строке):")
