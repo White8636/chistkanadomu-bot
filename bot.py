@@ -17,7 +17,7 @@ from telegram.ext import (
 # Состояния
 (NAME_PHONE, CITY, ADDRESS, TIME, COMMENT, PHOTO) = range(6)
 
-ADMIN_CHAT_ID = YOUR_TELEGRAM_ID  # Заменить на свой Telegram ID
+ADMIN_CHAT_ID = 404748283
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
