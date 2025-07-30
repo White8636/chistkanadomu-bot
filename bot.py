@@ -3,7 +3,6 @@ from telegram import (
     Update,
     ReplyKeyboardMarkup,
     ReplyKeyboardRemove,
-    KeyboardButton,
 )
 from telegram.ext import (
     ApplicationBuilder,
@@ -17,7 +16,7 @@ from telegram.ext import (
 # Состояния
 (NAME_PHONE, CITY, ADDRESS, TIME, COMMENT, PHOTO) = range(6)
 
-ADMIN_CHAT_ID = 404748283
+ADMIN_CHAT_ID = 404748283  # Твой Telegram ID
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -27,7 +26,8 @@ logging.basicConfig(
 main_menu = ReplyKeyboardMarkup([
     ["🧼 Заказать химчистку"],
     ["📸 Отправить фото", "💬 Связаться с оператором"],
-    ["ℹ️ О нас", "📎 Прайс-лист"]
+    ["ℹ️ О нас", "📎 Прайс-лист"],
+    ["❌ Отменить заявку"]
 ], resize_keyboard=True)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -35,32 +35,46 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "Добро пожаловать! Выберите действие:", reply_markup=main_menu
     )
 
-# ================== Заявка =====================
+# Универсальная проверка на выход из диалога
+def check_cancel_or_menu(text):
+    return text in ["❌ Отменить заявку", "🧼 Заказать химчистку", "📸 Отправить фото",
+                    "💬 Связаться с оператором", "ℹ️ О нас", "📎 Прайс-лист"]
+
 async def start_order(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Введите имя и номер телефона:")
     return NAME_PHONE
 
 async def name_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if check_cancel_or_menu(update.message.text):
+        return await handle_menu_buttons(update, context)
     context.user_data["name_phone"] = update.message.text.strip()
     await update.message.reply_text("🏙 Укажите город:")
     return CITY
 
 async def city(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if check_cancel_or_menu(update.message.text):
+        return await handle_menu_buttons(update, context)
     context.user_data["city"] = update.message.text.strip()
     await update.message.reply_text("📍 Адрес: подъезд-этаж-квартира — код домофона")
     return ADDRESS
 
 async def address(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if check_cancel_or_menu(update.message.text):
+        return await handle_menu_buttons(update, context)
     context.user_data["address"] = update.message.text.strip()
     await update.message.reply_text("🕓 Удобное время (например: утром, вечером):")
     return TIME
 
 async def time(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if check_cancel_or_menu(update.message.text):
+        return await handle_menu_buttons(update, context)
     context.user_data["time"] = update.message.text.strip()
     await update.message.reply_text("✏ Комментарий (тип мебели и пожелания):")
     return COMMENT
 
 async def comment(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if check_cancel_or_menu(update.message.text):
+        return await handle_menu_buttons(update, context)
     context.user_data["comment"] = update.message.text.strip()
     await update.message.reply_text("📷 Прикрепите фото или нажмите /skip, чтобы пропустить.")
     return PHOTO
@@ -82,17 +96,19 @@ async def send_summary(update: Update, context: ContextTypes.DEFAULT_TYPE):
 {d['address']}
 {d['time']}
 {d['comment']}"""
-
     await context.bot.send_message(chat_id=ADMIN_CHAT_ID, text=text)
     if d.get("photo"):
         await context.bot.send_photo(chat_id=ADMIN_CHAT_ID, photo=d["photo"])
     await update.message.reply_text("✅ Спасибо! Ваша заявка отправлена.", reply_markup=main_menu)
 
-# ================== Обработчики кнопок =====================
 async def handle_menu_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text
 
-    if text == "🧼 Заказать химчистку":
+    if text == "❌ Отменить заявку":
+        await update.message.reply_text("Заявка отменена. Возвращаемся в главное меню.", reply_markup=main_menu)
+        return ConversationHandler.END
+
+    elif text == "🧼 Заказать химчистку":
         return await start_order(update, context)
 
     elif text == "📸 Отправить фото":
@@ -100,8 +116,8 @@ async def handle_menu_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE
         return PHOTO
 
     elif text == "💬 Связаться с оператором":
-        await update.message.reply_text("📞 Напишите нам в Telegram: @White_Buddha\nИли в WhatsApp: https://wa.me/qr/4HDE6MIQIIDVM1")
-
+        await update.message.reply_text("📞 Напишите нам в Telegram: @White_Buddha
+Или в WhatsApp: https://wa.me/qr/4HDE6MIQIIDVM1")
 
     elif text == "ℹ️ О нас":
         await update.message.reply_text("Мы занимаемся выездной химчисткой мебели и ковров в Москве и МО. Работаем качественно, быстро и по честной цене.")
@@ -118,7 +134,7 @@ async def handle_menu_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE
     return ConversationHandler.END
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("❌ Заявка отменена.", reply_markup=main_menu)
+    await update.message.reply_text("Заявка отменена.", reply_markup=main_menu)
     return ConversationHandler.END
 
 def main():
