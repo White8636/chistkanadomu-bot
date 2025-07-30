@@ -100,17 +100,17 @@ async def handle_menu_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE
         return PHOTO
 
     elif text == "💬 Связаться с оператором":
-        await update.message.reply_text("📞 Напишите нам в Telegram: @White_Buddha
-Или в WhatsApp: https://wa.me/qr/4HDE6MIQIIDVM1")
+        await update.message.reply_text("📞 Напишите нам в Telegram: @White_Buddha\nИли в WhatsApp: https://wa.me/qr/4HDE6MIQIIDVM1")
+
 
     elif text == "ℹ️ О нас":
         await update.message.reply_text("Мы занимаемся выездной химчисткой мебели и ковров в Москве и МО. Работаем качественно, быстро и по честной цене.")
 
     elif text == "📎 Прайс-лист":
-        await update.message.reply_text("🧾 Прайс:
+        await update.message.reply_text("""🧾 Прайс:
 - Диван от 1500₽
 - Матрас от 1000₽
-- Ковер от 500₽/м²")
+- Ковер от 500₽/м²""")
 
     else:
         await update.message.reply_text("Выберите действие из меню:", reply_markup=main_menu)
