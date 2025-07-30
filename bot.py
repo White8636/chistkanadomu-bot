@@ -116,8 +116,7 @@ async def handle_menu_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE
         return PHOTO
 
     elif text == "💬 Связаться с оператором":
-        await update.message.reply_text("📞 Напишите нам в Telegram: @White_Buddha
-Или в WhatsApp: https://wa.me/qr/4HDE6MIQIIDVM1")
+        await update.message.reply_text("📞 Напишите нам в Telegram: @White_Buddha Или в WhatsApp: https://wa.me/qr/4HDE6MIQIIDVM1")
 
     elif text == "ℹ️ О нас":
         await update.message.reply_text("Мы занимаемся выездной химчисткой мебели и ковров в Москве и МО. Работаем качественно, быстро и по честной цене.")
@@ -143,19 +142,23 @@ def main():
 
     conv_handler = ConversationHandler(
         entry_points=[MessageHandler(filters.Regex("^🧼 Заказать химчистку$"), start_order)],
-        states={
-            NAME_PHONE: [MessageHandler(filters.TEXT & ~filters.COMMAND, name_phone)],
-            CITY: [MessageHandler(filters.TEXT & ~filters.COMMAND, city)],
-            ADDRESS: [MessageHandler(filters.TEXT & ~filters.COMMAND, address)],
-            TIME: [MessageHandler(filters.TEXT & ~filters.COMMAND, time)],
-            COMMENT: [MessageHandler(filters.TEXT & ~filters.COMMAND, comment)],
-            PHOTO: [
-                MessageHandler(filters.PHOTO, photo),
-                CommandHandler("skip", skip_photo),
-            ],
-        },
-        fallbacks=[CommandHandler("cancel", cancel)],
-    )
+         states={
+        NAME_PHONE: [MessageHandler(filters.TEXT & ~filters.COMMAND, name_phone)],
+        CITY: [MessageHandler(filters.TEXT & ~filters.COMMAND, city)],
+        ADDRESS: [MessageHandler(filters.TEXT & ~filters.COMMAND, address)],
+        TIME: [MessageHandler(filters.TEXT & ~filters.COMMAND, time)],
+        COMMENT: [MessageHandler(filters.TEXT & ~filters.COMMAND, comment)],
+        PHOTO: [
+            MessageHandler(filters.PHOTO, photo),
+            CommandHandler("skip", skip_photo),
+        ],
+    },
+    fallbacks=[
+        CommandHandler("cancel", cancel),
+        CommandHandler("start", start),  # вот эта строка
+    ],
+)
+
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(conv_handler)
