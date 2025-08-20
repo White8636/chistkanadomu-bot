@@ -1,0 +1,32 @@
+# --- Secrets & env ---
+.env
+*.env
+.env.*
+!/.env.example
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.venv/
+venv/
+
+# --- Editors/IDE ---
+.vscode/
+.idea/
+
+# --- Logs ---
+*.log
+bot.log
+bot.err.log
+
+# --- OS garbage ---
+.DS_Store
+Thumbs.db
+
+# --- Backups/archives ---
+backups/
+*.tar.gz
