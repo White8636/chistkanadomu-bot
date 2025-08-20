@@ -12,11 +12,10 @@ from telegram.ext import (
     ConversationHandler,
     filters,
 )
+import config
 
 # Состояния
 (NAME_PHONE, CITY, ADDRESS, TIME, COMMENT, PHOTO) = range(6)
-
-ADMIN_CHAT_ID = 404748283  # Твой Telegram ID
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -96,9 +95,9 @@ async def send_summary(update: Update, context: ContextTypes.DEFAULT_TYPE):
 {d['address']}
 {d['time']}
 {d['comment']}"""
-    await context.bot.send_message(chat_id=ADMIN_CHAT_ID, text=text)
+    await context.bot.send_message(chat_id=config.ADMIN_CHAT_ID, text=text)
     if d.get("photo"):
-        await context.bot.send_photo(chat_id=ADMIN_CHAT_ID, photo=d["photo"])
+        await context.bot.send_photo(chat_id=config.ADMIN_CHAT_ID, photo=d["photo"])
     await update.message.reply_text("✅ Спасибо! Ваша заявка отправлена.", reply_markup=main_menu)
 
 async def handle_menu_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -137,7 +136,7 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return ConversationHandler.END
 
 def main():
-    import config
+    
     app = ApplicationBuilder().token(config.BOT_TOKEN).build()
 
     conv_handler = ConversationHandler(
