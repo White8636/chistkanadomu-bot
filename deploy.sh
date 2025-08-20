@@ -5,30 +5,30 @@ DATE="$(date +%Y%m%d_%H%M%S)"
 BASE_DIR="/opt/himchik"
 BACKUP_DIR="/opt/backups"
 BRANCH="main"
-SERVICE_NAME="chistkanadomu-bot"   # если у сервиса другое имя — поменяй здесь
+SERVICE_NAME="chistkanadomu-bot"   # если имя сервиса другое — поменяй
 
 echo "🚀 [$DATE] Начинаем деплой..."
 
-# 0) Подгружаем .env (если есть)
+# 0) .env (если есть)
 if [[ -f "$BASE_DIR/.env" ]]; then
   set -a
   . "$BASE_DIR/.env"
   set +a
 fi
 
-# 1) Бэкап текущей версии
+# 1) Бэкап (ASCII-кавычки и опции ДО путей!)
 echo "💾 Создание бэкапа..."
 mkdir -p "$BACKUP_DIR"
 tar -czf "$BACKUP_DIR/himchik_backup_${DATE}.tar.gz" --exclude="$BACKUP_DIR" "$BASE_DIR" || true
 echo "✅ Бэкап: $BACKUP_DIR/himchik_backup_${DATE}.tar.gz"
 
-# 2) Обновить код из GitHub (жёсткая синхронизация)
+# 2) Код из GitHub — жёсткая синхронизация
 echo "🔄 Обновление кода из GitHub..."
 cd "$BASE_DIR"
 git fetch origin "$BRANCH"
 git reset --hard "origin/$BRANCH"
 
-# 3) Обновить зависимости
+# 3) Зависимости
 echo "📦 Обновление зависимостей..."
 if [[ -d "venv" ]]; then
   source venv/bin/activate
@@ -43,7 +43,7 @@ fi
 deactivate
 
 # 4) Перезапуск бота
-if command -v systemctl >/dev/null 2>&1; then
+if command -v systemctl >/dev/null 2>&1 && systemctl status "$SERVICE_NAME" >/dev/null 2>&1; then
   echo "🔁 Перезапуск systemd-сервиса..."
   sudo systemctl restart "$SERVICE_NAME"
 else
@@ -52,7 +52,7 @@ else
   nohup "$BASE_DIR/venv/bin/python" "$BASE_DIR/bot.py" > "$BASE_DIR/bot.log" 2>&1 &
 fi
 
-# 5) Уведомление в Telegram (если заданы токен и чат)
+# 5) Telegram-уведомление (без HTTP-проверок сайта)
 NOTIFY_TOKEN="${TELEGRAM_NOTIFY_TOKEN:-${BOT_TOKEN:-}}"
 NOTIFY_CHAT="${TELEGRAM_NOTIFY_CHAT_ID:-${ADMIN_CHAT_ID:-}}"
 if [[ -n "${NOTIFY_TOKEN:-}" && -n "${NOTIFY_CHAT:-}" ]]; then
